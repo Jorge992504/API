@@ -2,14 +2,14 @@ import * as express from "express";
 import Usuario from "./controllers/Usuario.js";
 import Login from "./auth/Login.js";
 import Autenticar from "./auth/Autenticar.js";
-import usuario_doenca from "./controllers/usuario_doenca.js";
-import Exercicio_doenca from "./controllers/Exercicio_doenca.js";
 
-import Exercicios from "./controllers/Exercicios.js";
-import Treino from "./controllers/Treino.js";
-import doenca from "./controllers/doenca.js";
-import Usuario_treino from "./controllers/Usuario_treino.js";
-import Treino_semana from "./controllers/Treino_semana.js";
+
+import Register_Dias_Treino from "./controllers/Register_Dias_Treino.js";
+import Register_Dias_Treino_Doencas from "./controllers/Register_Dias_Treino_Doencas.js";
+import Training from "./controllers/Training.js";
+import Plan_Improvements from "./controllers/Plan_Improvements.js";
+
+
 
 
 const rota = express.Router();
@@ -18,57 +18,34 @@ rota.use("/public", express.static("./public"));
 
 rota.post("/login", Login);
 
-//rotas cadastrar usuario
-rota.route("/usuario")
-    .post(Usuario.cadastrarUsuarios)
+rota.route("/user")
+    .get(Usuario.getUsers);
+
+//informações do usuário
+rota.route("/users")
+    .post(Usuario.saveUsers)
     .all(Autenticar)
-    .get(Usuario.listarUsuarios)
-    .put(Usuario.alterarUsuario);
+    .get(Usuario.getUser)
+    .patch(Usuario.modifyUser);
 
-//rotas para relacionar os usuarios com as doencas
-rota.route("/usuario/doenca")
+
+
+//cadastrar usuario sem doenças    
+rota.route("/training/days")
     .all(Autenticar)
-    .post(usuario_doenca.relacionarDoenca)
+    .post(Register_Dias_Treino.saveDays);
 
-//deletar doencas
-rota.delete("/usuario/doenca/:id", Autenticar, usuario_doenca.deletarDoenca);
 
-//relacionar exercicios com doencas
-rota.route("/exercicio/doenca")
+//cadastrar usuario com doenças
+rota.route("/training/days/doencas")
     .all(Autenticar)
-    .post(Exercicio_doenca.relacionarExercicios)
-rota.delete("/exercicio/doenca/:id", Autenticar, Exercicio_doenca.deletarExercicio);
+    .get(Register_Dias_Treino_Doencas.getDisease)
+    .post(Register_Dias_Treino_Doencas.saveDaysDoenca);
 
-//relacionar usuarios com o treino
-rota.route("/usuario/treino_semana")//--------------------------------------------------------------------------------------------
-    .all(Autenticar)
-    .get(Treino_semana.listarTreinoSemana)
-    .put(Treino_semana.alterarTreino)
-    .post(Treino_semana.CriarTreino)
+rota.route("/training/:weekday").get(Autenticar, Training.getTraining);
+rota.route("/training/vip/:weekday").get(Autenticar, Training.getTrainingVip);
 
-rota.delete("/usuario/treino/:id_treino", Autenticar, Treino_semana.deletartreino);
-
-//buscar exercicios
-rota.route("/exercicio")
-    .get(Exercicios.listarExercicios);
-
-rota.route("/exercicio/:id").delete(Autenticar, Exercicios.deletarExercicio);
-
-rota.route("/treino")
-    .get(Treino.listarTreino)
-    
-    .delete(Treino.deletarTreino)
-
-rota.route("/doenca")
-    .get(doenca.listarDoencas)
-
-rota.route("/usuario/treino")
-    .all(Autenticar)
-    .post(Usuario_treino.relacionarUsuarioTreino)
-    .get(Usuario_treino.listarTreinoUsuario)
-rota.route("/usuario/treino/:diaSemana").get( Usuario_treino.listarTreinoDia)
-
-
+rota.route("/planImprovements").post(Autenticar, Plan_Improvements.saveInprovements);
 
 
 export default rota;
